@@ -7,25 +7,25 @@ import pkg from './package.json'
 
 /** @type {import('rollup').RollupOptions} */
 const config = {
-    input: 'src/index.ts',
-    output: [
-        {
-            file: pkg.main,
-            format: 'cjs',
-            sourcemap: false,
-            exports: "auto",
-        },
-        {
-            file: pkg.module,
-            format: 'esm',
-            sourcemap: false,
-        },
-    ],
-    plugins: [
-        peerDepsExternal(),
-        resolve(),
-        typescript(),
-    ],
+  input: 'src/index.ts',
+  output: [
+    {
+      file: pkg.main,
+      format: 'cjs',
+      sourcemap: false,
+      exports: "auto",
+    },
+    {
+      file: pkg.module,
+      format: 'esm',
+      sourcemap: false,
+    },
+  ],
+  plugins: [
+    peerDepsExternal(),
+    resolve(),
+    typescript(),
+  ],
 }
 
 export default config

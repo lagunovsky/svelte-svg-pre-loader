@@ -18,34 +18,50 @@ yarn add -D @lagunovsky/svelte-svg-pre-loader
 
 ## Usage
 
-```js
-// webpack.config.js
+```typescript
+// webpack.config.ts
+
+import type { Options } from '@lagunovsky/svelte-svg-pre-loader'
+
 
 module.exports = {
-    module: {
-        rules: [
-            {
-                test: /.svg$/,
-                use: [
-                    { loader: 'svelte-loader' },
-                    { loader: 'svelte-svg-pre-loader' },
-                ],
-            },
+  module: {
+    rules: [
+      {
+        test: /.svg$/,
+        use: [
+          { loader: 'svelte-loader' },
+          { loader: 'svelte-svg-pre-loader', options: { withAction: true } as Options },
         ],
-    },
+      },
+    ],
+  },
 };
 ```
 
 ```sveltehtml
 <!-- index.svelte -->
 
-<script>
-    import Dog from './dog.svg'
-    import Cat from './cat.svg'
+<Dog width="100px" height="30px"/>
+<Cat {action} class="interactive"/> <!-- requires css-modules -->
+
+<script lang="ts">
+  import type { SvelteSVGAction } from '@lagunovsky/svelte-svg-pre-loader'
+
+  import Dog from './dog.svg'
+  import Cat from './cat.svg'
+
+
+  const action: SvelteSVGAction = (node) => {
+    node.addEventListener('click', () => alert('meow'))
+  }
 </script>
 
-<Dog width="100px" height="30px"/>
-<Cat/>
+<style module>
+  .interactive {
+    cursor: pointer;
+  }
+</style>
 ```
 
 ## Options
@@ -55,3 +71,9 @@ module.exports = {
 [SVGO options](https://github.com/svg/svgo). Some plugins cannot be disabled.
 
 Default: ```{ plugins: [ 'preset-default', 'removeStyleElement', 'removeDimensions'] }```
+
+### withAction
+
+Adds the [use:action](https://svelte.dev/docs#template-syntax-element-directives-use-action) directive to an imported svg element.
+
+Default: `false`

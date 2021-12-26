@@ -3,8 +3,11 @@ import type { LoaderDefinitionFunction } from 'webpack'
 import { validateAndFixSvgoOptions } from './svgo'
 
 
+export type SvelteSVGAction = (node: SVGElement) => { update?: () => void, destroy?: () => void } | void
+
 export type Options = {
   svgo?: svgo.OptimizeOptions
+  withAction?: boolean
 }
 
 const svgRegex = /(<svg.*?)(>.*)/s
@@ -23,21 +26,25 @@ const index: LoaderDefinitionFunction<Options> = function (source) {
       if (parts === null) {
         throw new Error('Unable to parse as svg.')
       }
+
       const [ , svgStart, svgBody ] = parts
 
       const viewBox = viewBoxRegex.exec(content)
       const height = viewBox === null ? '1em' : viewBox[2]
       const width = viewBox === null ? '1em' : viewBox[1]
 
-      const script = (
+      return (
         `<script>\n` +
         `export let height = ${height}\n` +
         `export let width = ${width}\n` +
         `export let fill = 'currentColor'\n` +
-        `</script>`
+        `${options.withAction === true ? 'export let action = () => {}\n' : ''}` +
+        `</script>\n` +
+        `\n` +
+        `${svgStart}` +
+        `${options.withAction === true ? 'use:action' : ''} {height} {width} {fill} {...$$restProps}` +
+        `${svgBody}\n`
       )
-
-      return `${script} \n\n ${svgStart} {height} {width} {fill} {...$$restProps} ${svgBody}`
     })
     .then(result => cb(null, result))
     .catch(err => cb(err))
